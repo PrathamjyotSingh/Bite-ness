@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect ,useRef} from "react";
 import { ReelCard } from "@/components/ReelCard";
 import { BottomNav } from "@/components/BottomNav";
 import { SearchFilters } from "@/components/SearchFilters";
@@ -15,13 +15,12 @@ const Index = () => {
   const [savedRestaurants, setSavedRestaurants] = useState<string[]>([]);
   const [filteredReels, setFilteredReels] = useState<FoodReel[]>(mockReels);
 
- 
-// ...existing code...
 
-const scrollThrottle = useRef(false);
+
+  const scrollThrottle = useRef(false);
 const touchStartY = useRef<number | null>(null);
-
-useEffect(() => {
+  // Handle scroll for reel navigation
+  useEffect(() => {
   const handleWheel = (e: WheelEvent) => {
     if (activeTab === "home" && !selectedRestaurant) {
       e.preventDefault();
@@ -84,6 +83,22 @@ useEffect(() => {
     window.removeEventListener("touchend", handleTouchEnd);
   };
 }, [activeTab, selectedRestaurant, currentReelIndex, filteredReels.length]);
+
+  // Handle keyboard navigation
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (activeTab === "home" && !selectedRestaurant) {
+        if (e.key === "ArrowDown" && currentReelIndex < filteredReels.length - 1) {
+          setCurrentReelIndex(prev => prev + 1);
+        } else if (e.key === "ArrowUp" && currentReelIndex > 0) {
+          setCurrentReelIndex(prev => prev - 1);
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [activeTab, selectedRestaurant, currentReelIndex, filteredReels.length]);
 
   const handleLike = (reelId: string) => {
     setReels(prev => prev.map(reel => 
@@ -200,23 +215,28 @@ useEffect(() => {
         return (
           <div className="h-screen overflow-hidden">
             {filteredReels.length > 0 ? (
-              <div className="h-full w-full flex items-center justify-center">
-  {filteredReels.length > 0 && (() => {
-    const reel = filteredReels[currentReelIndex];
-    const restaurant = restaurants.find(r => r.id === reel.restaurantId);
-    if (!restaurant) return null;
-    return (
-      <ReelCard
-        key={reel.id}
-        reel={reel}
-        restaurant={restaurant}
-        onLike={handleLike}
-        onSave={handleSaveReel}
-        onRestaurantClick={handleRestaurantClick}
-      />
-    );
-  })()}
-</div>
+              <div 
+                className="h-full transition-transform duration-300 ease-out"
+                style={{ 
+                  transform: `translateY(-${currentReelIndex * 100}vh)` 
+                }}
+              >
+                {filteredReels.map((reel, index) => {
+                  const restaurant = restaurants.find(r => r.id === reel.restaurantId);
+                  if (!restaurant) return null;
+                  
+                  return (
+                    <ReelCard
+                      key={reel.id}
+                      reel={reel}
+                      restaurant={restaurant}
+                      onLike={handleLike}
+                      onSave={handleSaveReel}
+                      onRestaurantClick={handleRestaurantClick}
+                    />
+                  );
+                })}
+              </div>
             ) : (
               <div className="h-screen flex items-center justify-center bg-background">
                 <div className="text-center p-8">
