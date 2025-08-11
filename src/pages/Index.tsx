@@ -44,6 +44,7 @@ const touchStartY = useRef<number | null>(null);
   return () => window.removeEventListener('wheel', handleWheel);
 }, [activeTab, selectedRestaurant, currentReelIndex, filteredReels.length]);
 
+// ...existing code...
 useEffect(() => {
   const handleTouchStart = (e: TouchEvent) => {
     if (activeTab === "home" && !selectedRestaurant) {
@@ -60,13 +61,20 @@ useEffect(() => {
     ) {
       const touchEndY = e.changedTouches[0].clientY;
       const diff = touchStartY.current - touchEndY;
-      if (Math.abs(diff) > 60) { // Only trigger if swipe is big enough
+      // Only trigger if swipe is big enough
+      if (Math.abs(diff) > 60) {
         scrollThrottle.current = true;
-        // Only move one reel per gesture
         if (diff > 0 && currentReelIndex < filteredReels.length - 1) {
+          // Swipe up: next reel
           setCurrentReelIndex(prev => prev + 1);
-        } else if (diff < 0 && currentReelIndex > 0) {
-          setCurrentReelIndex(prev => prev - 1);
+        } else if (diff < 0) {
+          // Swipe down: previous reel or at first reel
+          if (currentReelIndex > 0) {
+            setCurrentReelIndex(prev => prev - 1);
+          } else {
+            // At first reel, prevent pull-to-refresh
+            e.preventDefault();
+          }
         }
         setTimeout(() => {
           scrollThrottle.current = false;
@@ -83,6 +91,7 @@ useEffect(() => {
     window.removeEventListener("touchend", handleTouchEnd);
   };
 }, [activeTab, selectedRestaurant, currentReelIndex, filteredReels.length]);
+// ...existing code...
 
   // Handle keyboard navigation
   useEffect(() => {
