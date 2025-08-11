@@ -28,7 +28,7 @@ export const ReelCard = ({ reel, restaurant, onLike, onSave, onRestaurantClick }
       {/* Background Image/Video */}
       <div 
         className="absolute inset-0 bg-cover bg-center"
-        style={{ backgroundImage: `url(${reel.imageUrl})` }}
+        style={{ backgroundImage: `url(/assets/${reel.imageUrl})` }}
       >
         {/* Gradient Overlay */}
         <div className="absolute inset-0 bg-gradient-overlay" />
