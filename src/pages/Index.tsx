@@ -173,39 +173,47 @@ useEffect(() => {
   };
 
   const handleFiltersChange = (filters: any) => {
-    let filtered = mockReels;
-    
-    // Apply cuisine filter
-    if (filters.cuisine) {
-      filtered = filtered.filter(reel => {
-        const restaurant = restaurants.find(r => r.id === reel.restaurantId);
-        return restaurant?.cuisine === filters.cuisine;
-      });
-    }
-    
-    // Apply price level filter
+  let filtered = mockReels;
+
+  // Apply cuisine filter
+  if (filters.cuisine) {
     filtered = filtered.filter(reel => {
       const restaurant = restaurants.find(r => r.id === reel.restaurantId);
-      return restaurant && restaurant.priceLevel >= filters.priceLevel[0] && restaurant.priceLevel <= filters.priceLevel[1];
+      return restaurant?.cuisine === filters.cuisine;
     });
-    
-    // Apply distance filter
+  }
+
+  // Apply price level filter
+  if (filters.priceLevel && Array.isArray(filters.priceLevel)) {
+    filtered = filtered.filter(reel => {
+      const restaurant = restaurants.find(r => r.id === reel.restaurantId);
+      return (
+        restaurant &&
+        restaurant.priceLevel >= filters.priceLevel[0] &&
+        restaurant.priceLevel <= filters.priceLevel[1]
+      );
+    });
+  }
+
+  // Apply distance filter
+  if (filters.distance && Array.isArray(filters.distance)) {
     filtered = filtered.filter(reel => {
       const restaurant = restaurants.find(r => r.id === reel.restaurantId);
       return restaurant && restaurant.distance <= filters.distance[0];
     });
-    
-    // Apply open now filter
-    if (filters.openNow) {
-      filtered = filtered.filter(reel => {
-        const restaurant = restaurants.find(r => r.id === reel.restaurantId);
-        return restaurant?.isOpen;
-      });
-    }
-    
-    setFilteredReels(filtered);
-    setCurrentReelIndex(0);
-  };
+  }
+
+  // Apply open now filter
+  if (filters.openNow) {
+    filtered = filtered.filter(reel => {
+      const restaurant = restaurants.find(r => r.id === reel.restaurantId);
+      return restaurant?.isOpen;
+    });
+  }
+
+  setFilteredReels(filtered);
+  setCurrentReelIndex(0);
+};
 
   const renderContent = () => {
     if (selectedRestaurant) {
@@ -280,7 +288,7 @@ useEffect(() => {
                       >
                         <div 
                           className="h-32 bg-cover bg-center"
-                          style={{ backgroundImage: `url(${reel.imageUrl})` }}
+                          style={{ backgroundImage: `url(/assets/${reel.imageUrl})` }}
                         />
                         <div className="p-3">
                           <h3 className="font-semibold text-sm mb-1">{restaurant.name}</h3>
@@ -318,7 +326,7 @@ useEffect(() => {
                     >
                       <div 
                         className="h-32 bg-cover bg-center"
-                        style={{ backgroundImage: `url(${reel.imageUrl})` }}
+                        style={{ backgroundImage: `url(/assets/${reel.imageUrl})` }}
                       />
                       <div className="p-3">
                         <h3 className="font-semibold text-sm mb-1">{restaurant.name}</h3>
